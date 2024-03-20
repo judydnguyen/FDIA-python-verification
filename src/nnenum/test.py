@@ -173,12 +173,14 @@ def main():
         
     if result_str == "safe":
         result_str = "holds"
+        result_str += f"\n{res.total_secs}"
     elif "unsafe" in result_str:
         result_str = "violated"
         result_str += f"\nresult.cinput: {res.cinput}\nresult.coutput: {res.coutput}"
+        result_str += f"\n{res.total_secs}"
 
     if outfile is not None:
-        with open(outfile, 'w') as f:
+        with open(outfile, 'w+') as f:
             f.write(result_str)
             
     #print(result_str)
