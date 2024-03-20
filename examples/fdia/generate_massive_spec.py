@@ -27,13 +27,13 @@ def load_unscaled_images(img, epsilon=0.0, variable_features=[]):
     if epsilon is set, it gets added to the loaded image to get min/max images
     '''
     features_to_normalize = img[variable_features]
-
     normalized_image = features_to_normalize
+    full_image = img
     # Apply epsilon perturbation
-    if epsilon != 0.0:
+    if abs(epsilon) > 0:
         # perturbation = np.random.uniform(-epsilon, epsilon, normalized_image.shape)
         normalized_image += epsilon
-        # Ensure the perturbed data is still in [-1, 1] range
+        # print(f"Ensure the perturbed data is still in [-1, 1] range")
         normalized_image = np.clip(normalized_image, -1, 1)
         
         # Rescale variable features back to the original range
@@ -48,7 +48,7 @@ def load_unscaled_images(img, epsilon=0.0, variable_features=[]):
     # labels.append(int(y_test_loaded[idx]))
         
     # print(f"Processed a total of {len(image_list)} images")
-    return np.array(img, dtype=np.float32)
+    return np.array(full_image, dtype=np.float32)
 
 def make_init_box(min_image, max_image):
     'make init box'
@@ -73,6 +73,8 @@ def make_init(nn, img, epsilon,
     min_image = load_unscaled_images(img, epsilon=-epsilon, variable_features=variable_features)
     max_image = load_unscaled_images(img, epsilon=epsilon, variable_features=variable_features)
     
+    # import IPython
+    # IPython.embed()
     print("making init states")
     # print(len(images))
     correct_cls = False
@@ -178,7 +180,6 @@ def main():
     image_filename = '../np_data/test_data_01.npz'
 
     onnx_filename = f'{onnx_filename}'
-    
     nn = load_onnx_network(onnx_filename)
     print(f"loaded network with {nn.num_relu_layers()} ReLU layers and {nn.num_relu_neurons()} ReLU neurons")
     print(f"unique_classes: {unique_classes}")
