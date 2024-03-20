@@ -1,3 +1,24 @@
+/fdia_data/**
+/np_data/**
+*~
+*.pyc
+.directory
+.coverage*
+TAGS
+\#*\#
+.\#*
+*_flymake.py
+.pytest_cache
+.cache
+__pycache__
+*.tf
+*branch_str.txt
+*.mypy_cache
+.coverage
+examples/acasxu/out.txt
+examples/acasxu/results/*
+out.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
