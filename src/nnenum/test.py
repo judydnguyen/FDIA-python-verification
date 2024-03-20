@@ -7,6 +7,7 @@ Stanley Bak
 June 2021
 '''
 
+import os
 import sys
 sys.path.append(".")
 
@@ -92,36 +93,8 @@ def set_image_settings():
     Settings.CONTRACT_ZONOTOPE = False
     Settings.CONTRACT_ZONOTOPE_LP = False
 
-def main():
-    'main entry point'
-
-    if len(sys.argv) < 3:
-        print('usage: "python3 nnenum.py <onnx_file> <vnnlib_file> [timeout=None] [outfile=None] [processes=<auto>]"')
-        sys.exit(1)
-
-    onnx_filename = sys.argv[1]
-    vnnlib_filename = sys.argv[2]
-    timeout = None
-    outfile = None
-    print(f"vnnlib_filename: {vnnlib_filename}")
-    if len(sys.argv) >= 4:
-        timeout = float(sys.argv[3])
-
-    if len(sys.argv) >= 5:
-        outfile = sys.argv[4]
-
-    if len(sys.argv) >= 6:
-        processes = int(sys.argv[5])
-        Settings.NUM_PROCESSES = processes
-
-    if len(sys.argv) >= 7:
-        settings_str = sys.argv[6]
-    else:
-        settings_str = "auto"
-
-    #
+def verify_one_spec(onnx_filename, vnnlib_filename, settings_str, timeout):
     spec_list, input_dtype = make_spec(vnnlib_filename, onnx_filename)
-
     try:
         network = load_onnx_network_optimized(onnx_filename)
         print(f"load network...: {network}")
@@ -168,25 +141,65 @@ def main():
 
         if result_str != "safe":
             break
+    return res, result_str
 
-    # rename for VNNCOMP21:
+def main():
+    'main entry point'
+
+    # if len(sys.argv) < 3:
+    #     print('usage: "python3 nnenum.py <onnx_file> <vnnlib_file> [timeout=None] [outfile=None] [processes=<auto>]"')
+    #     sys.exit(1)
+    if len(sys.argv) < 3:
+        print('usage: "python3 nnenum.py <onnx_file> <vnnlib_path> [timeout=None] [out_path=None] [processes=<auto>]"')
+        sys.exit(1)
+
+    onnx_filename = sys.argv[1]
+    vnnlib_path = sys.argv[2]
+    timeout = None
+    out_path = None
+    print(f"vnnlib_path: {vnnlib_path}")
+    if len(sys.argv) >= 4:
+        timeout = float(sys.argv[3])
+
+    if len(sys.argv) >= 5:
+        out_path = sys.argv[4]
+
+    if len(sys.argv) >= 6:
+        processes = int(sys.argv[5])
+        Settings.NUM_PROCESSES = processes
+
+    if len(sys.argv) >= 7:
+        settings_str = sys.argv[6]
+    else:
+        settings_str = "auto"
         
-    if result_str == "safe":
-        result_str = "holds"
-        result_str += f"\n{res.total_secs}"
-    elif "unsafe" in result_str:
-        result_str = "violated"
-        result_str += f"\nresult.cinput: {res.cinput}\nresult.coutput: {res.coutput}"
-        result_str += f"\n{res.total_secs}"
-
-    if outfile is not None:
-        with open(outfile, 'w+') as f:
-            f.write(result_str)
-            
-    #print(result_str)
-
-    if result_str == 'error':
-        sys.exit(Result.results.index('error'))
+    vnnlib_files = []
+    short_files = []
+    # walking through the vnnlib_path and run the verification
+    for dirpath, dirnames, filenames in os.walk(vnnlib_path):
+        # Filter and collect full paths of .vnnlib files
+        for file in filenames:
+            if file.endswith('.vnnlib'):
+                full_path = os.path.join(dirpath, file)
+                vnnlib_files.append(full_path)
+                short_files.append(file)
+    # verify each spec
+    for idx, vnnlib_filename in enumerate(vnnlib_files):
+        res, result_str = verify_one_spec(onnx_filename, vnnlib_filename, settings_str, timeout)
+        if result_str == "safe":
+            result_str = "holds"
+            result_str += f"\n{res.total_secs}"
+        elif "unsafe" in result_str:
+            result_str = "violated"
+            result_str += f"\nresult.cinput: {res.cinput}\nresult.coutput: {res.coutput}"
+            result_str += f"\n{res.total_secs}"
+        file_to_save = f"{out_path}/{short_files[idx]}.txt"
+        if out_path is not None:
+            with open(file_to_save, 'w+') as f:
+                f.write(result_str)
+        #print(result_str)
+        if result_str == 'error':
+            sys.exit(Result.results.index('error'))
 
 
 if __name__ == '__main__':
