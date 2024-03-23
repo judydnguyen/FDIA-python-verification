@@ -175,6 +175,12 @@ def main():
         
     vnnlib_files = []
     short_files = []
+    # Initialize lists to store results and timing information
+    results = []
+    times = []
+    robust_samples = 0
+    not_robust_samples = 0
+    unknown_samples = 0
     # walking through the vnnlib_path and run the verification
     for dirpath, dirnames, filenames in os.walk(vnnlib_path):
         # Filter and collect full paths of .vnnlib files
@@ -189,10 +195,19 @@ def main():
         if result_str == "safe":
             result_str = "holds"
             result_str += f"\n{res.total_secs}"
+            robust_samples += 1
+            results.append(1)  # Code for robust
         elif "unsafe" in result_str:
             result_str = "violated"
             result_str += f"\nresult.cinput: {res.cinput}\nresult.coutput: {res.coutput}"
             result_str += f"\n{res.total_secs}"
+            not_robust_samples += 1 
+            results.append(0)  # Code for not robust
+        else:
+            unknown_samples += 1
+            results.append(2)  # Code for unknown
+            
+        times.append(res.total_secs)
         file_to_save = f"{out_path}/{short_files[idx]}.txt"
         if out_path is not None:
             with open(file_to_save, 'w+') as f:
@@ -200,6 +215,27 @@ def main():
         #print(result_str)
         if result_str == 'error':
             sys.exit(Result.results.index('error'))
+            
+    # Convert results and times to numpy arrays for summary calculations
+    results_array = np.array(results)
+    times_array = np.array(times)
+    N = len(results_array)  # Total number of samples
+
+    # Calculate summary statistics
+    totalTime = times_array.sum()
+    avgTime = totalTime / N if N > 0 else 0
+
+    # Print results to the screen
+    print("======= ROBUSTNESS RESULTS ==========")
+    print(f"Number of robust samples = {robust_samples}, equivalent to {100 * robust_samples / N:.2f}% of the samples.")
+    print(f"Number of not robust samples = {not_robust_samples}, equivalent to {100 * not_robust_samples / N:.2f}% of the samples.")
+    print(f"Number of unknown samples = {unknown_samples}, equivalent to {100 * unknown_samples / N:.2f}% of the samples.")
+    print(f"It took a total of {totalTime:.2f} seconds to compute the verification results, an average of {avgTime:.2f} seconds per image")
+
+    # Save results as .npy files or a .npz archive
+    np.save(f'{out_path}/results_verify_fdia_ffnn.npy', results_array)
+    np.save(f'{out_path}/times_verify_fdia_ffnn.npy', times_array)
+    np.savez(f'{out_path}/summary_verify_fdia_ffnn.npz', results=results_array, times=times_array)
 
 
 if __name__ == '__main__':
