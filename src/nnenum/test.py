@@ -181,7 +181,8 @@ def main():
     robust_samples = 0
     not_robust_samples = 0
     unknown_samples = 0
-    out_path = f"{out_path}/{settings_str}"
+    out_path = f"{vnnlib_path}/results/{settings_str}"
+    os.makedirs(out_path, exist_ok=True)
     # walking through the vnnlib_path and run the verification
     for dirpath, dirnames, filenames in os.walk(vnnlib_path):
         # Filter and collect full paths of .vnnlib files
@@ -209,7 +210,6 @@ def main():
             results.append(2)  # Code for unknown
             
         times.append(res.total_secs)
-        os.makedirs(out_path, exist_ok=True)
         file_to_save = f"{out_path}/{short_files[idx]}.txt"
         if out_path is not None:
             with open(file_to_save, 'w+') as f:

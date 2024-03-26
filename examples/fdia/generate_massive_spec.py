@@ -78,8 +78,8 @@ def make_init(nn, img, epsilon,
     print("making init states")
     # print(len(images))
     correct_cls = False
-    os.makedirs(f"../examples/fdia/class_{int(gt_label)}", exist_ok=True)
-    with open(f"../examples/fdia/class_{int(gt_label)}/image_{img_id}_epsilon_{epsilon}.vnnlib", 'w+') as f:
+    os.makedirs(f"../examples/fdia/epsilon_{epsilon}/class_{int(gt_label)}", exist_ok=True)
+    with open(f"../examples/fdia/epsilon_{epsilon}/class_{int(gt_label)}/image_{img_id}_epsilon_{epsilon}.vnnlib", 'w+') as f:
         output = nn.execute(image)
         flat_output = nn_flatten(output)
 
@@ -121,7 +121,7 @@ def make_init(nn, img, epsilon,
             f.write("))")
 
     if correct_cls:
-        print(f"Writing successfully to {f'../examples/fdia/class_{int(gt_label)}/image_{img_id}_epsilon_{epsilon}.vnnlib'}!")
+        print(f"Writing successfully to {f'../examples/fdia/epsilon_{epsilon}/class_{int(gt_label)}/image_{img_id}_epsilon_{epsilon}.vnnlib'}!")
         f.close()
         rv.append(image)
     else:
