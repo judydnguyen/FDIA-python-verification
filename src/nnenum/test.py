@@ -121,7 +121,7 @@ def verify_one_spec(onnx_filename, vnnlib_filename, settings_str, timeout):
     else:
         assert settings_str == "exact"
         set_exact_settings()
-
+    print(f"Set settings_str: {settings_str}")
     for init_box, spec in spec_list:
         init_box = np.array(init_box, dtype=input_dtype)
 
@@ -181,6 +181,7 @@ def main():
     robust_samples = 0
     not_robust_samples = 0
     unknown_samples = 0
+    out_path = f"{out_path}/{settings_str}"
     # walking through the vnnlib_path and run the verification
     for dirpath, dirnames, filenames in os.walk(vnnlib_path):
         # Filter and collect full paths of .vnnlib files
@@ -208,6 +209,7 @@ def main():
             results.append(2)  # Code for unknown
             
         times.append(res.total_secs)
+        os.makedirs(out_path, exist_ok=True)
         file_to_save = f"{out_path}/{short_files[idx]}.txt"
         if out_path is not None:
             with open(file_to_save, 'w+') as f:
@@ -233,10 +235,9 @@ def main():
     print(f"It took a total of {totalTime:.2f} seconds to compute the verification results, an average of {avgTime:.2f} seconds per image")
 
     # Save results as .npy files or a .npz archive
-    np.save(f'{out_path}/results_verify_fdia_ffnn.npy', results_array)
-    np.save(f'{out_path}/times_verify_fdia_ffnn.npy', times_array)
+    # np.save(f'{out_path}/results_verify_fdia_ffnn.npy', results_array)
+    # np.save(f'{out_path}/times_verify_fdia_ffnn.npy', times_array)
     np.savez(f'{out_path}/summary_verify_fdia_ffnn.npz', results=results_array, times=times_array)
-
 
 if __name__ == '__main__':
     main()
