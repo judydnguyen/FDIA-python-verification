@@ -159,7 +159,7 @@ def main():
     min_values = X_test_loaded.min(axis=0)
     max_values = X_test_loaded.max(axis=0)
     ranges = max_values - min_values
-
+    
     variable_features = ranges != 0
     total_imgs = X_test_loaded.shape[0]
     print(f"There are total {total_imgs} imgs")
