@@ -237,7 +237,8 @@ def main():
     # Save results as .npy files or a .npz archive
     # np.save(f'{out_path}/results_verify_fdia_ffnn.npy', results_array)
     # np.save(f'{out_path}/times_verify_fdia_ffnn.npy', times_array)
-    np.savez(f'{out_path}/summary_verify_fdia_ffnn.npz', results=results_array, times=times_array)
+    tmp = ' '.join(onnx_filename.split("_")[-4:-1])
+    np.savez(f'{out_path}/summary_verify_fdia_ffnn_{tmp}.npz', results=results_array, times=times_array)
 
 if __name__ == '__main__':
     main()

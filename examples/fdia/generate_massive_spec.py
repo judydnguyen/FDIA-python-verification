@@ -137,6 +137,8 @@ def main():
                     help='Epsilon for perturbation')
     parser.add_argument('-n', '--num_per_class', type=int, default=10,
                     help='Number of samples for each class')
+    parser.add_argument('-m', '--model_path', type=str, default="",
+                    help='Path to onnx model')
     parser.add_argument('-s', '--seed', type=int, default=10,
                     help='Seeding constant')
     parser.add_argument('-f', '--filename', type=str, default='../np_data/test_data_01.npz',
@@ -176,7 +178,7 @@ def main():
         # Choose 'num_per_class' indices
         # selected_indices.extend(shuffled_indices[:num_per_class])
 
-    onnx_filename = f'../examples/fdia/fdia_model_ffnn_pytorch.onnx'
+    onnx_filename = f'../examples/fdia/fdia_model_ffnn_pytorch.onnx' if not args.model_path else args.model_path
     image_filename = '../np_data/test_data_01.npz'
 
     onnx_filename = f'{onnx_filename}'
