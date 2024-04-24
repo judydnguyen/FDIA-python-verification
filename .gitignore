@@ -1,6 +1,7 @@
 /fdia_data/**
 *~
 *.pyc
+*.pth
 .directory
 .coverage*
 TAGS
