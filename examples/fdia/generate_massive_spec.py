@@ -160,7 +160,18 @@ def main():
     max_values = X_test_loaded.max(axis=0)
     ranges = max_values - min_values
     
+    discrete_columns = [28, 57, 86, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127]
+    
     variable_features = ranges != 0
+
+    # Create a boolean mask to remove the discrete columns from variable_features
+    variable_features_mask = ~np.isin(np.arange(len(variable_features)), discrete_columns)
+
+    # Apply the mask to get the updated variable_features
+    variable_features = variable_features & variable_features_mask
+
+    print(f"Poisoning the features: {variable_features}")
+    
     total_imgs = X_test_loaded.shape[0]
     print(f"There are total {total_imgs} imgs")
     
