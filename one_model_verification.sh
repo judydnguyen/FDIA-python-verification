@@ -3,7 +3,7 @@ export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=1
 cd src
 
-MODEL_PATH="../onnx_models/fdia_model_ffnn_pytorch_50_100_50.onnx"
+MODEL_PATH="../onnx_models/fdia_model_ffnn_pytorch_100_200_100.onnx"
 python3 ../examples/fdia/generate_massive_spec.py -e 0.01 -n 20 -m $MODEL_PATH
 python3 ../examples/fdia/generate_massive_spec.py -e 0.025 -n 20 -m $MODEL_PATH
 python3 ../examples/fdia/generate_massive_spec.py -e 0.005 -n 20 -m $MODEL_PATH
